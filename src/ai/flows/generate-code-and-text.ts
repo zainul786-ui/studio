@@ -53,7 +53,17 @@ const prompt = ai.definePrompt({
   Analyze the user's latest prompt. Your response MUST be in the format described by the output schema.
 
   - If the prompt is a coding question (e.g., "how do I create a button in React?", "write a python function to..."), you MUST provide a clear explanation in the 'text' field and the corresponding, well-formatted code in the 'code' field.
+    Example for a coding question:
+    {
+      "text": "Sure, here is a simple React button component:",
+      "code": "export default function Button() { return <button>Click me</button>; }"
+    }
+
   - If the prompt is a general question, greeting, or any non-coding topic, you MUST provide a helpful response in the 'text' field and you MUST OMIT the 'code' field entirely. Do not include 'code: null' or 'code: ""'.
+    Example for a general question:
+    {
+      "text": "Hello! How can I help you today?"
+    }
 
   User Prompt: {{{prompt}}}
   `,
