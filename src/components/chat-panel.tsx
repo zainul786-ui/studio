@@ -182,7 +182,7 @@ export default function ChatPanel() {
                       className="rounded-md object-cover mb-2"
                     />
                 )}
-                <p>{message.content}</p>
+                <p className="whitespace-pre-wrap">{message.content}</p>
                 {message.code && <CodeBlock code={message.code} />}
               </div>
               {message.role === 'user' && (

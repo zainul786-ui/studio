@@ -1,5 +1,5 @@
 import { Header } from '@/components/header';
-import ChatPanel from '@/components/chat-panel';
+import ClientOnlyChatPanel from '@/components/client-only-chat-panel';
 
 export default function Home() {
   return (
@@ -7,7 +7,7 @@ export default function Home() {
       <Header />
       <main className="flex-1 w-full">
         <div className="container mx-auto py-4 md:py-8 h-[calc(100vh-8rem)]">
-          <ChatPanel />
+          <ClientOnlyChatPanel />
         </div>
       </main>
     </div>
