@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Header } from '@/components/header';
 import ChatPanel from '@/components/chat-panel';
 import { Card } from '@/components/ui/card';
@@ -9,10 +10,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    const user = localStorage.getItem('user');
+    if (!user) {
+      router.push('/login');
+    }
+  }, [router]);
 
   return (
     <div className="flex flex-col h-screen">

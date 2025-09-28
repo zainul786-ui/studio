@@ -74,7 +74,7 @@ function CodeBlock({ code }: { code: string }) {
 
   return (
     <div className="bg-gray-950 rounded-md mt-4 relative">
-       <pre className="text-sm text-white p-4 overflow-x-auto whitespace-pre">
+       <pre className="text-sm text-white p-4 overflow-x-auto whitespace-pre-wrap">
         <code>{code}</code>
       </pre>
       <Button
