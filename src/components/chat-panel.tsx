@@ -41,7 +41,7 @@ export default function ChatPanel() {
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -55,11 +55,13 @@ export default function ChatPanel() {
   }, [state.error, toast]);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
-        behavior: 'smooth',
-      });
+    if (scrollViewportRef.current) {
+        setTimeout(() => {
+            scrollViewportRef.current!.scrollTo({
+              top: scrollViewportRef.current!.scrollHeight,
+              behavior: 'smooth',
+            });
+        }, 100);
     }
   }, [state.messages]);
 
@@ -75,7 +77,7 @@ export default function ChatPanel() {
 
   return (
     <Card className="w-full max-w-3xl mx-auto h-[75vh] flex flex-col">
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+      <ScrollArea className="flex-1 p-4" viewportRef={scrollViewportRef}>
         <div className="space-y-6">
           {state.messages.map((message) => (
             <div
@@ -133,7 +135,7 @@ export default function ChatPanel() {
           )}
         </div>
       </ScrollArea>
-      <div className="p-4 border-t">
+      <div className="p-4 border-t shrink-0">
         {suggestions && suggestions.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
             {suggestions.map((suggestion, i) => (

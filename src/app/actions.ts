@@ -29,7 +29,7 @@ export async function handleUserMessage(
     const assistantMessage: Message = {
       id: crypto.randomUUID(),
       role: 'assistant',
-      content: steps.length > 0 ? steps : ["I'm not sure how to respond to that. Can you try rephrasing?"],
+      content: steps.length > 0 ? steps.join(' ') : "I'm not sure how to respond to that. Can you try rephrasing?",
     };
     
     const messagesWithAssistant = [...newMessages, assistantMessage];
