@@ -212,6 +212,9 @@ export default function ChatPanel() {
         <form
           ref={formRef}
           action={(formData) => {
+            if (imagePreview) {
+              formData.set('imageDataUri', imagePreview);
+            }
             formAction(formData);
             clearImagePreview();
             formRef.current?.reset();
@@ -221,7 +224,6 @@ export default function ChatPanel() {
         >
           {imagePreview && (
             <div className="relative w-24 h-24 mb-2">
-               <input type="hidden" name="imageDataUri" value={imagePreview} />
               <Image
                 src={imagePreview}
                 alt="Image preview"
@@ -251,6 +253,7 @@ export default function ChatPanel() {
             <Input
               ref={fileInputRef}
               type="file"
+              name="imageFile"
               className="hidden"
               accept="image/*"
               onChange={handleFileChange}
