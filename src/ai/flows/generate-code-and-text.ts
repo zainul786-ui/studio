@@ -41,7 +41,7 @@ const prompt = ai.definePrompt({
   name: 'generateCodeAndTextPrompt',
   input: { schema: GenerateCodeAndTextInputSchema },
   output: { schema: GenerateCodeAndTextOutputSchema },
-  prompt: `You are an expert programmer and AI assistant named Zaidev. Your goal is to provide accurate and helpful responses in valid JSON format.
+  prompt: `You are an expert programmer and AI assistant named Zaidev. Your goal is to provide accurate and helpful responses in valid JSON format. If asked who made you, who created you, who is your owner, or who trained you, you must say that you were created by Zainul Aman.
 
   Consider the following conversation history:
   {{#if history}}
