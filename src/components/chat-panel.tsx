@@ -38,7 +38,7 @@ function SubmitButton() {
 
 function CodeBlock({ code }: { code: string }) {
   const { toast } = useToast();
-  const [isCopied, setIsCopied] = useTransition();
+  const [isCopied, startTransition] = useTransition();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code).then(() => {
