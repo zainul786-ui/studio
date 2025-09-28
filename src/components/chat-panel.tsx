@@ -1,14 +1,18 @@
 'use client';
 
 import * as React from 'react';
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { handleUserMessage } from '@/app/actions';
+import { handleUserMessage, convertTextToSpeech } from '@/app/actions';
 import {
   Clipboard,
   Copy,
   SendHorizonal,
+  ThumbsDown,
+  ThumbsUp,
   User,
+  Volume2,
+  Loader,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -90,6 +94,110 @@ function CodeBlock({ code }: { code: string }) {
   );
 }
 
+function AssistantMessageActions({ message }: { message: Message }) {
+  const { toast } = useToast();
+  const [isCopied, setIsCopied] = useState(false);
+  const [feedback, setFeedback] = useState<'like' | 'dislike' | null>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handleCopy = () => {
+    const textToCopy = message.code
+      ? `${message.content}\n\n\`\`\`\n${message.code}\n\`\`\``
+      : message.content;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      setIsCopied(true);
+      toast({ title: 'Copied to clipboard!' });
+      setTimeout(() => setIsCopied(false), 2000);
+    });
+  };
+
+  const handleFeedback = (type: 'like' | 'dislike') => {
+    setFeedback(type);
+    toast({ title: 'Thank you for your feedback!' });
+  };
+
+  const handleReadAloud = async () => {
+    if (isSpeaking) {
+      audioRef.current?.pause();
+      audioRef.current?.remove();
+      audioRef.current = null;
+      setIsSpeaking(false);
+      return;
+    }
+    
+    setIsSpeaking(true);
+    const result = await convertTextToSpeech(message.content);
+    if ('audioDataUri' in result) {
+      const audio = new Audio(result.audioDataUri);
+      audioRef.current = audio;
+      audio.play();
+      audio.onended = () => {
+        setIsSpeaking(false);
+        audioRef.current = null;
+      };
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Could not read message aloud',
+        description: result.error,
+      });
+      setIsSpeaking(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-2 mt-2 text-muted-foreground">
+      <Button
+        variant="ghost"
+        size="icon"
+        className={cn('h-7 w-7', feedback === 'like' && 'text-blue-500')}
+        onClick={() => handleFeedback('like')}
+        aria-label="Like"
+      >
+        <ThumbsUp className="w-4 h-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className={cn('h-7 w-7', feedback === 'dislike' && 'text-red-500')}
+        onClick={() => handleFeedback('dislike')}
+        aria-label="Dislike"
+      >
+        <ThumbsDown className="w-4 h-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7"
+        onClick={handleCopy}
+        aria-label="Copy"
+      >
+        {isCopied ? (
+          <Clipboard className="w-4 h-4" />
+        ) : (
+          <Copy className="w-4 h-4" />
+        )}
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7"
+        onClick={handleReadAloud}
+        aria-label="Read aloud"
+        disabled={isSpeaking}
+      >
+        {isSpeaking ? (
+          <Loader className="w-4 h-4 animate-spin" />
+        ) : (
+          <Volume2 className="w-4 h-4" />
+        )}
+      </Button>
+    </div>
+  );
+}
+
+
 export default function ChatPanel() {
   const [state, formAction, isPending] = useActionState(
     handleUserMessage,
@@ -149,24 +257,33 @@ export default function ChatPanel() {
                 </Avatar>
               )}
               <div
-                className={cn(
-                  'max-w-[85%] p-3 rounded-lg text-sm',
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted'
+                className={cn('max-w-[85%]',
+                  message.role === 'user' ? '' : 'group'
                 )}
               >
-                {message.imageUrl && (
-                    <Image
-                      src={message.imageUrl}
-                      alt="Generated image"
-                      width={300}
-                      height={300}
-                      className="rounded-md object-cover mb-2"
-                    />
+                <div
+                  className={cn(
+                    'p-3 rounded-lg text-sm',
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted'
+                  )}
+                >
+                  {message.imageUrl && (
+                      <Image
+                        src={message.imageUrl}
+                        alt="Generated image"
+                        width={300}
+                        height={300}
+                        className="rounded-md object-cover mb-2"
+                      />
+                  )}
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  {message.code && <CodeBlock code={message.code} />}
+                </div>
+                {message.role === 'assistant' && (
+                  <AssistantMessageActions message={message} />
                 )}
-                <p className="whitespace-pre-wrap">{message.content}</p>
-                {message.code && <CodeBlock code={message.code} />}
               </div>
               {message.role === 'user' && (
                 <Avatar className="w-8 h-8">
