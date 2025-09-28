@@ -34,8 +34,13 @@ function SubmitButton() {
     );
 }
 
+const initialState = {
+    editedImageDataUri: undefined,
+    error: undefined,
+};
+
 export default function ImageEditor() {
-    const [state, formAction] = useActionState(handleImageEdit, {});
+    const [state, formAction] = useActionState(handleImageEdit, initialState);
     const { toast } = useToast();
     const [originalImage, setOriginalImage] = useState<string>(defaultImage?.imageUrl || '');
     const [prompt, setPrompt] = useState<string>('');
