@@ -1,15 +1,13 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { handleUserMessage } from '@/app/actions';
 import {
   Clipboard,
   Copy,
-  PlusCircle,
   SendHorizonal,
   User,
-  X,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -22,14 +20,13 @@ import { useToast } from '@/hooks/use-toast';
 import type { ChatState, Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { Input } from './ui/input';
 
 const initialMessages: Message[] = [
   {
     id: 'init',
     role: 'assistant',
     content:
-      "Hello! I'm Zaidev AI, your expert coding and image editing assistant. How can I help you today?",
+      "Hello! I'm Zaidev AI. Ask me a coding question, or ask me to generate an image by saying, for example, 'generate an image of a cat'.",
   },
 ];
 
@@ -57,22 +54,22 @@ function SubmitButton() {
 
 function CodeBlock({ code }: { code: string }) {
   const { toast } = useToast();
-  const [isCopied, startTransition] = useTransition();
+  const [isCopied, setIsCopied] = React.useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code).then(() => {
-      startTransition(() => {
-        toast({
-          title: 'Copied to clipboard!',
-          description: 'The code has been copied to your clipboard.',
-        });
+      setIsCopied(true);
+      toast({
+        title: 'Copied to clipboard!',
+        description: 'The code has been copied to your clipboard.',
       });
+      setTimeout(() => setIsCopied(false), 2000);
     });
   };
 
   return (
     <div className="bg-gray-950 rounded-md mt-4 relative">
-      <pre className="text-sm text-white p-4 overflow-x-auto whitespace-pre-wrap">
+       <pre className="text-sm text-white p-4 overflow-x-auto whitespace-pre-wrap">
         <code>{code}</code>
       </pre>
       <Button
@@ -100,9 +97,7 @@ export default function ChatPanel() {
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.error) {
@@ -127,28 +122,8 @@ export default function ChatPanel() {
     }
   }, [state.messages]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (loadEvent) => {
-        const result = loadEvent.target?.result as string;
-        setImagePreview(result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const clearImagePreview = () => {
-    setImagePreview(null);
-    if(fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }
-
   const handleFormAction = (formData: FormData) => {
     formAction(formData);
-    clearImagePreview();
     formRef.current?.reset();
     textareaRef.current?.focus();
   }
@@ -183,9 +158,9 @@ export default function ChatPanel() {
                 {message.imageUrl && (
                     <Image
                       src={message.imageUrl}
-                      alt="User uploaded image"
+                      alt="Generated image"
                       width={300}
-                      height={200}
+                      height={300}
                       className="rounded-md object-cover mb-2"
                     />
                 )}
@@ -219,61 +194,23 @@ export default function ChatPanel() {
         <form
           ref={formRef}
           action={handleFormAction}
-          className="flex flex-col gap-2"
+          className="flex items-center gap-2"
         >
-          {imagePreview && (
-            <div className="relative w-24 h-24 mb-2">
-              <Image
-                src={imagePreview}
-                alt="Image preview"
-                fill
-                className="rounded-md object-cover"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-slate-600 hover:bg-slate-700 text-white"
-                onClick={clearImagePreview}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-          <input type="hidden" name="imageDataUri" value={imagePreview || ''} />
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <PlusCircle className="h-5 w-5" />
-            </Button>
-            <Input
-              ref={fileInputRef}
-              type="file"
-              name="imageFile"
-              className="hidden"
-              accept="image/*"
-              onChange={handleFileChange}
-            />
-            <Textarea
-              ref={textareaRef}
-              name="message"
-              placeholder="Ask a coding question or edit an image..."
-              className="flex-1 resize-none"
-              rows={1}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  formRef.current?.requestSubmit();
-                }
-              }}
-              required
-            />
-            <SubmitButton />
-          </div>
+          <Textarea
+            ref={textareaRef}
+            name="message"
+            placeholder="Ask a question or 'generate an image of...'"
+            className="flex-1 resize-none"
+            rows={1}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                formRef.current?.requestSubmit();
+              }
+            }}
+            required
+          />
+          <SubmitButton />
         </form>
       </div>
     </Card>

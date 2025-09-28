@@ -1,7 +1,7 @@
 'use server';
 
 import { generateCodeAndText } from '@/ai/flows/generate-code-and-text';
-import { generateImageEdits } from '@/ai/flows/generate-image-edits';
+import { generateImageFromText } from '@/ai/flows/generate-image-from-text';
 import type { ChatState, Message } from '@/lib/types';
 
 export async function handleUserMessage(
@@ -9,7 +9,6 @@ export async function handleUserMessage(
   formData: FormData
 ): Promise<ChatState> {
   const userInput = formData.get('message') as string;
-  const imageDataUri = formData.get('imageDataUri') as string | null;
 
   if (!userInput) {
     return { ...prevState, error: 'Message is required.' };
@@ -19,7 +18,6 @@ export async function handleUserMessage(
     id: crypto.randomUUID(),
     role: 'user',
     content: userInput,
-    imageUrl: imageDataUri || undefined,
   };
 
   const newMessages = [...prevState.messages, userMessage];
@@ -27,17 +25,18 @@ export async function handleUserMessage(
   try {
     let assistantMessage: Message;
 
-    if (imageDataUri) {
-      // Image editing task
-      const { editedImageDataUri } = await generateImageEdits({
-        imageDataUri,
+    // Simple intent detection: if the user asks to generate an image.
+    const isImageRequest = userInput.toLowerCase().startsWith('generate an image') || userInput.toLowerCase().startsWith('create an image');
+
+    if (isImageRequest) {
+      const { imageDataUri } = await generateImageFromText({
         prompt: userInput,
       });
       assistantMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: "Here's the edited image:",
-        imageUrl: editedImageDataUri,
+        content: "Here's the image you requested:",
+        imageUrl: imageDataUri,
       };
     } else {
       // Text/code generation task
