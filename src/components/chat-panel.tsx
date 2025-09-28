@@ -1,19 +1,19 @@
 'use client';
 
+import { useActionState, useEffect, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { handleUserMessage } from '@/app/actions';
-import { useEffect, useRef, useTransition, useActionState } from 'react';
 import { Clipboard, Copy, SendHorizonal, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
-import type { ChatState, Message } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
-import { ScrollArea } from './ui/scroll-area';
-import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { ZaidevLogo } from './icons';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from './ui/scroll-area';
 import { Skeleton } from './ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
+import { ZaidevLogo } from './icons';
+import { useToast } from '@/hooks/use-toast';
+import type { ChatState, Message } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 const initialMessages: Message[] = [
   {
@@ -53,7 +53,7 @@ function CodeBlock({ code }: { code: string }) {
 
   return (
     <div className="bg-gray-950 rounded-md mt-4 relative">
-      <pre className="text-sm text-white p-4 overflow-x-auto whitespace-pre-wrap break-words">
+      <pre className="text-sm text-white p-4 overflow-x-auto">
         <code>{code}</code>
       </pre>
       <Button
