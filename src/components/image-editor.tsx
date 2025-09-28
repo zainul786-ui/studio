@@ -42,14 +42,9 @@ const initialState: ImageEditState = {
 export default function ImageEditor() {
     const [state, formAction] = useActionState(handleImageEdit, initialState);
     const { toast } = useToast();
-    const [originalImage, setOriginalImage] = useState<string | null>(null);
+    const [originalImage, setOriginalImage] = useState<string | null>(defaultImage?.imageUrl || null);
     const [prompt, setPrompt] = useState<string>('');
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-        // This ensures the image is only set on the client-side, avoiding SSR mismatches.
-        setOriginalImage(defaultImage?.imageUrl || '');
-    }, []);
 
     useEffect(() => {
         if (state.error) {
