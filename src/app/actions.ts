@@ -1,7 +1,6 @@
 'use server';
 
 import { generateCodeAndText } from '@/ai/flows/generate-code-and-text';
-import { generateImageFromText } from '@/ai/flows/generate-image-from-text';
 import { textToSpeech } from '@/ai/flows/text-to-speech';
 import type { ChatState, Message } from '@/lib/types';
 
@@ -24,36 +23,18 @@ export async function handleUserMessage(
   const newMessages = [...prevState.messages, userMessage];
 
   try {
-    let assistantMessage: Message;
+    const history = newMessages
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .map(({ role, content }) => ({ role, content }));
 
-    // Simple intent detection: if the user asks to generate an image.
-    const isImageRequest = userInput.toLowerCase().startsWith('generate an image') || userInput.toLowerCase().startsWith('create an image');
+    const { text, code } = await generateCodeAndText({ prompt: userInput, history });
 
-    if (isImageRequest) {
-      const { imageDataUri } = await generateImageFromText({
-        prompt: userInput,
-      });
-      assistantMessage = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: "Here's the image you requested:",
-        imageUrl: imageDataUri,
-      };
-    } else {
-      // Text/code generation task
-      const history = newMessages
-        .filter((m) => m.role === 'user' || m.role === 'assistant')
-        .map(({ role, content }) => ({ role, content }));
-
-      const { text, code } = await generateCodeAndText({ prompt: userInput, history });
-
-      assistantMessage = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: text,
-        code: code,
-      };
-    }
+    const assistantMessage: Message = {
+      id: crypto.randomUUID(),
+      role: 'assistant',
+      content: text,
+      code: code,
+    };
     
     const messagesWithAssistant = [...newMessages, assistantMessage];
 

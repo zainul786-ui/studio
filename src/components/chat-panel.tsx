@@ -31,7 +31,7 @@ const initialMessages: Message[] = [
     id: 'init',
     role: 'assistant',
     content:
-      "Hello! I'm Zaidev AI. Ask me a coding question, or ask me to generate an image by saying, for example, 'generate an image of a cat'.",
+      "Hello! I'm Zaidev AI. Ask me a coding question.",
   },
 ];
 
@@ -269,15 +269,6 @@ export default function ChatPanel() {
                       : 'bg-muted'
                   )}
                 >
-                  {message.imageUrl && (
-                      <Image
-                        src={message.imageUrl}
-                        alt="Generated image"
-                        width={300}
-                        height={300}
-                        className="rounded-md object-cover mb-2"
-                      />
-                  )}
                   <p className="whitespace-pre-wrap">{message.content}</p>
                   {message.code && <CodeBlock code={message.code} />}
                 </div>
@@ -317,7 +308,7 @@ export default function ChatPanel() {
           <Textarea
             ref={textareaRef}
             name="message"
-            placeholder="Ask a question or 'generate an image of...'"
+            placeholder="Ask a question..."
             className="flex-1 resize-none"
             rows={1}
             onKeyDown={(e) => {
