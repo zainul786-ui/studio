@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -24,9 +24,7 @@ export default function ProfilePage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [username, setUsername] = useState('');
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
-  const fileInputRef = useState<React.RefObject<HTMLInputElement>>(
-    () => React.createRef()
-  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -66,12 +64,14 @@ export default function ProfilePage() {
     );
 
     if (userIndex !== -1) {
-      users[userIndex] = updatedUser;
+      users[userIndex] = { ...users[userIndex], ...updatedUser };
       localStorage.setItem('users', JSON.stringify(users));
     }
 
+    setCurrentUser(updatedUser);
+
     toast({ title: 'Profile updated successfully!' });
-    // Force header to re-render
+    // Force header to re-render by dispatching a storage event
     window.dispatchEvent(new Event('storage'));
   };
 
