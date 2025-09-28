@@ -1,7 +1,6 @@
 'use server';
 
-import { decomposeTask } from '@/ai/flows/decompose-task-into-steps';
-import { generateContextAwareSuggestions } from '@/ai/flows/generate-context-aware-suggestions';
+import { generateCodeAndText } from '@/ai/flows/generate-code-and-text';
 import { generateImageEdits } from '@/ai/flows/generate-image-edits';
 import type { ChatState, Message } from '@/lib/types';
 
@@ -24,12 +23,13 @@ export async function handleUserMessage(
   const newMessages = [...prevState.messages, userMessage];
 
   try {
-    const { steps } = await decomposeTask({ task: userInput });
+    const { text, code } = await generateCodeAndText({ prompt: userInput });
 
     const assistantMessage: Message = {
       id: crypto.randomUUID(),
       role: 'assistant',
-      content: steps.length > 0 ? steps.join(' ') : "I'm not sure how to respond to that. Can you try rephrasing?",
+      content: text,
+      code: code,
     };
     
     const messagesWithAssistant = [...newMessages, assistantMessage];

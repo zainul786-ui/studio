@@ -3,7 +3,7 @@
 import { useFormStatus } from 'react-dom';
 import { handleUserMessage } from '@/app/actions';
 import { useEffect, useRef, useTransition, useActionState } from 'react';
-import { SendHorizonal, User } from 'lucide-react';
+import { Clipboard, Copy, SendHorizonal, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
@@ -19,7 +19,7 @@ const initialMessages: Message[] = [
   {
     id: 'init',
     role: 'assistant',
-    content: "Hello! I'm Zaidev AI. How can I help you today? You can ask me to break down a task or anything else!",
+    content: "Hello! I'm Zaidev AI, your expert coding assistant. How can I help you today?",
   },
 ];
 
@@ -36,14 +36,46 @@ function SubmitButton() {
   );
 }
 
+function CodeBlock({ code }: { code: string }) {
+  const { toast } = useToast();
+  const [isCopied, setIsCopied] = useTransition();
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code).then(() => {
+      startTransition(() => {
+        toast({
+          title: 'Copied to clipboard!',
+          description: 'The code has been copied to your clipboard.',
+        });
+      });
+    });
+  };
+
+  return (
+    <div className="bg-gray-950 rounded-md mt-4 relative">
+      <pre className="text-sm text-white p-4 overflow-x-auto">
+        <code>{code}</code>
+      </pre>
+      <Button
+        size="icon"
+        variant="ghost"
+        className="absolute top-2 right-2 h-8 w-8 text-white hover:text-white hover:bg-gray-800"
+        onClick={handleCopy}
+        disabled={isCopied}
+      >
+        {isCopied ? <Clipboard className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+      </Button>
+    </div>
+  );
+}
+
 export default function ChatPanel() {
-  const [state, formAction] = useActionState(handleUserMessage, initialState);
+  const [state, formAction, isPending] = useActionState(handleUserMessage, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
-  const [isPending, startTransition] = useTransition();
-
+  
   useEffect(() => {
     if (state.error) {
       toast({
@@ -88,13 +120,14 @@ export default function ChatPanel() {
               )}
               <div
                 className={cn(
-                  'max-w-[75%] p-3 rounded-lg text-sm',
+                  'max-w-[85%] p-3 rounded-lg text-sm',
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted'
                 )}
               >
                 <p>{message.content}</p>
+                {message.code && <CodeBlock code={message.code} />}
               </div>
               {message.role === 'user' && (
                 <Avatar className="w-8 h-8">
@@ -123,9 +156,7 @@ export default function ChatPanel() {
         <form
           ref={formRef}
           action={(formData) => {
-            startTransition(() => {
-              formAction(formData);
-            });
+            formAction(formData);
             formRef.current?.reset();
             textareaRef.current?.focus();
           }}
@@ -134,7 +165,7 @@ export default function ChatPanel() {
           <Textarea
             ref={textareaRef}
             name="message"
-            placeholder="Type your message..."
+            placeholder="Ask a coding question or anything else..."
             className="flex-1 resize-none"
             rows={1}
             onKeyDown={(e) => {

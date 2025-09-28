@@ -34,11 +34,11 @@ const prompt = ai.definePrompt({
   name: 'decomposeTaskPrompt',
   input: {schema: DecomposeTaskInputSchema},
   output: {schema: DecomposeTaskOutputSchema},
-  prompt: `You are an AI task decomposition expert. Your job is to take a complex task and break it down into a series of actionable steps.
+  prompt: `You are an AI task decomposition expert. Your job is to take a complex task and break it down into a series of actionable steps. If the task is a simple greeting or question, just respond conversationally.
 
 Task: {{{task}}}
 
-Steps:`,
+Decomposition:`,
 });
 
 const decomposeTaskFlow = ai.defineFlow(
