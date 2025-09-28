@@ -67,16 +67,6 @@ export default function ChatPanel() {
     }
   }, [state.messages]);
 
-  const lastMessage = state.messages[state.messages.length - 1];
-  const suggestions = lastMessage?.role === 'assistant' ? lastMessage.suggestions : [];
-
-  const handleSuggestionClick = (suggestion: string) => {
-    if (textareaRef.current) {
-      textareaRef.current.value = suggestion;
-      formRef.current?.requestSubmit();
-    }
-  };
-
   return (
     <Card className="w-full max-w-3xl mx-auto h-[75vh] flex flex-col">
       <ScrollArea className="flex-1 p-4" viewportRef={scrollViewportRef}>
@@ -130,21 +120,6 @@ export default function ChatPanel() {
         </div>
       </ScrollArea>
       <div className="p-4 border-t shrink-0">
-        {suggestions && suggestions.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-2">
-            {suggestions.map((suggestion, i) => (
-              <Button
-                key={i}
-                variant="outline"
-                size="sm"
-                onClick={() => handleSuggestionClick(suggestion)}
-                disabled={isPending}
-              >
-                {suggestion}
-              </Button>
-            ))}
-          </div>
-        )}
         <form
           ref={formRef}
           action={(formData) => {

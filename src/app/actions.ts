@@ -34,23 +34,6 @@ export async function handleUserMessage(
     
     const messagesWithAssistant = [...newMessages, assistantMessage];
 
-    const conversationHistory = messagesWithAssistant
-      .map(m => `${m.role}: ${Array.isArray(m.content) ? m.content.join('\n- ') : m.content}`)
-      .join('\n\n');
-
-    const { suggestions } = await generateContextAwareSuggestions({
-      conversationHistory,
-      currentUserMessage: userInput,
-    });
-    
-    // Add suggestions to the last assistant message
-    if (messagesWithAssistant.length > 0) {
-      const lastMsg = messagesWithAssistant[messagesWithAssistant.length - 1];
-      if (lastMsg.role === 'assistant') {
-        lastMsg.suggestions = suggestions;
-      }
-    }
-
     return {
       messages: messagesWithAssistant,
     };
