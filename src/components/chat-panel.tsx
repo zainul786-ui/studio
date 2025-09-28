@@ -1,8 +1,8 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
 import { handleUserMessage } from '@/app/actions';
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition, useActionState } from 'react';
 import { SendHorizonal, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -37,7 +37,7 @@ function SubmitButton() {
 }
 
 export default function ChatPanel() {
-  const [state, formAction] = useFormState(handleUserMessage, initialState);
+  const [state, formAction] = useActionState(handleUserMessage, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);

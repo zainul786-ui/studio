@@ -1,8 +1,8 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
 import { handleImageEdit } from '@/app/actions';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useActionState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,7 +35,7 @@ function SubmitButton() {
 }
 
 export default function ImageEditor() {
-    const [state, formAction] = useFormState(handleImageEdit, {});
+    const [state, formAction] = useActionState(handleImageEdit, {});
     const { toast } = useToast();
     const [originalImage, setOriginalImage] = useState<string>(defaultImage?.imageUrl || '');
     const [prompt, setPrompt] = useState<string>('');
