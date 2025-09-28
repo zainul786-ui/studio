@@ -2,7 +2,7 @@
 
 import { useFormStatus } from 'react-dom';
 import { handleUserMessage } from '@/app/actions';
-import { useEffect, useRef, useState, useTransition, useActionState } from 'react';
+import { useEffect, useRef, useTransition, useActionState } from 'react';
 import { SendHorizonal, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,7 +11,7 @@ import type { ChatState, Message } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from './ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Avatar, AvatarFallback } from './ui/avatar';
 import { ZaidevLogo } from './icons';
 import { Skeleton } from './ui/skeleton';
 
@@ -57,10 +57,12 @@ export default function ChatPanel() {
   useEffect(() => {
     if (scrollViewportRef.current) {
         setTimeout(() => {
-            scrollViewportRef.current!.scrollTo({
-              top: scrollViewportRef.current!.scrollHeight,
-              behavior: 'smooth',
-            });
+            if (scrollViewportRef.current) {
+                scrollViewportRef.current.scrollTo({
+                  top: scrollViewportRef.current.scrollHeight,
+                  behavior: 'smooth',
+                });
+            }
         }, 100);
     }
   }, [state.messages]);
@@ -102,15 +104,7 @@ export default function ChatPanel() {
                     : 'bg-muted'
                 )}
               >
-                {Array.isArray(message.content) ? (
-                  <ul className="space-y-2 list-disc pl-4">
-                    {message.content.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>{message.content}</p>
-                )}
+                <p>{message.content}</p>
               </div>
               {message.role === 'user' && (
                 <Avatar className="w-8 h-8">
