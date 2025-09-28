@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -16,7 +15,7 @@ import {
   Volume2,
   Loader,
 } from 'lucide-react';
-import { Avatar, AvatarFallback } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -31,7 +30,7 @@ import { Skeleton } from './ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { ZaidevLogo } from './icons';
 import { useToast } from '@/hooks/use-toast';
-import type { ChatState, Message } from '@/lib/types';
+import type { ChatState, Message, User as UserType } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -235,10 +234,18 @@ export default function ChatPanel() {
     handleUserMessage,
     initialState
   );
+  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      setCurrentUser(JSON.parse(user));
+    }
+  }, []);
 
   useEffect(() => {
     if (state.error) {
@@ -264,6 +271,9 @@ export default function ChatPanel() {
   }, [state.messages]);
 
   const handleFormAction = (formData: FormData) => {
+    if (currentUser?.username) {
+      formData.append('username', currentUser.username);
+    }
     formAction(formData);
     formRef.current?.reset();
     textareaRef.current?.focus();
@@ -311,6 +321,7 @@ export default function ChatPanel() {
               </div>
               {message.role === 'user' && (
                 <Avatar className="w-8 h-8">
+                  <AvatarImage src={currentUser?.profileImage} />
                   <AvatarFallback>
                     <User className="w-4 h-4" />
                   </AvatarFallback>

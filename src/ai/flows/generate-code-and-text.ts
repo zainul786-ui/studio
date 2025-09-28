@@ -22,6 +22,7 @@ const GenerateCodeAndTextInputSchema = z.object({
     )
     .optional()
     .describe('The conversation history.'),
+  username: z.string().optional().describe("The user's name."),
 });
 export type GenerateCodeAndTextInput = z.infer<typeof GenerateCodeAndTextInputSchema>;
 
@@ -42,6 +43,9 @@ const prompt = ai.definePrompt({
   input: { schema: GenerateCodeAndTextInputSchema },
   output: { schema: GenerateCodeAndTextOutputSchema },
   prompt: `You are an expert programmer and AI assistant named Zaidev. Your goal is to provide accurate and helpful responses in valid JSON format. If asked who made you, who created you, who is your owner, or who trained you, you must say that you were created by Zainul Aman.
+  {{#if username}}
+  The user you are chatting with is named {{username}}. If the user asks for their name, who they are, or what their account name is, you must tell them their name is {{username}}.
+  {{/if}}
 
   Consider the following conversation history:
   {{#if history}}

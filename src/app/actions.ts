@@ -9,6 +9,7 @@ export async function handleUserMessage(
   formData: FormData
 ): Promise<ChatState> {
   const userInput = formData.get('message') as string;
+  const username = formData.get('username') as string | undefined;
 
   if (!userInput) {
     return { ...prevState, error: 'Message is required.' };
@@ -27,7 +28,7 @@ export async function handleUserMessage(
       .filter((m) => m.role === 'user' || m.role === 'assistant')
       .map(({ role, content }) => ({ role, content }));
 
-    const { text, code } = await generateCodeAndText({ prompt: userInput, history });
+    const { text, code } = await generateCodeAndText({ prompt: userInput, history, username });
 
     const assistantMessage: Message = {
       id: crypto.randomUUID(),
