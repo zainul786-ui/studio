@@ -13,6 +13,15 @@ import { z } from 'genkit';
 
 const GenerateCodeAndTextInputSchema = z.object({
   prompt: z.string().describe('The user prompt or question.'),
+  history: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string(),
+      })
+    )
+    .optional()
+    .describe('The conversation history.'),
 });
 export type GenerateCodeAndTextInput = z.infer<typeof GenerateCodeAndTextInputSchema>;
 
@@ -32,9 +41,16 @@ const prompt = ai.definePrompt({
   name: 'generateCodeAndTextPrompt',
   input: { schema: GenerateCodeAndTextInputSchema },
   output: { schema: GenerateCodeAndTextOutputSchema },
-  prompt: `You are an expert programmer and AI assistant. 
-  
-  Analyze the user's prompt. Your response must be in JSON format.
+  prompt: `You are an expert programmer and AI assistant named Zaidev. Your goal is to provide accurate and helpful responses.
+
+  Consider the following conversation history:
+  {{#if history}}
+  {{#each history}}
+  {{this.role}}: {{{this.content}}}
+  {{/each}}
+  {{/if}}
+
+  Analyze the user's latest prompt. Your response must be in JSON format.
 
   - If the prompt is a coding question (e.g., "how do I create a button in React?", "write a python function to..."), provide a clear explanation in the 'text' field and the corresponding code in the 'code' field.
   - If the prompt is a general question or greeting, provide a helpful response in the 'text' field and leave the 'code' field empty.

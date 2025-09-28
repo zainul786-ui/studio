@@ -23,7 +23,12 @@ export async function handleUserMessage(
   const newMessages = [...prevState.messages, userMessage];
 
   try {
-    const { text, code } = await generateCodeAndText({ prompt: userInput });
+    // We only want to pass the 'user' and 'assistant' messages to the history
+    const history = newMessages
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .map(({ role, content }) => ({ role, content }));
+
+    const { text, code } = await generateCodeAndText({ prompt: userInput, history });
 
     const assistantMessage: Message = {
       id: crypto.randomUUID(),
