@@ -3,6 +3,7 @@ export type Message = {
   role: 'user' | 'assistant' | 'system';
   content: string;
   code?: string;
+  imageUrl?: string;
 };
 
 export type ChatState = {
