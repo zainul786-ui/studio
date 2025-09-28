@@ -1,7 +1,7 @@
 'use client';
 
 import { useFormStatus } from 'react-dom';
-import { handleImageEdit } from '@/app/actions';
+import { handleImageEdit, type ImageEditState } from '@/app/actions';
 import { useEffect, useState, useRef, useActionState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +34,7 @@ function SubmitButton() {
     );
 }
 
-const initialState = {
+const initialState: ImageEditState = {
     editedImageDataUri: undefined,
     error: undefined,
 };
@@ -42,9 +42,14 @@ const initialState = {
 export default function ImageEditor() {
     const [state, formAction] = useActionState(handleImageEdit, initialState);
     const { toast } = useToast();
-    const [originalImage, setOriginalImage] = useState<string>(defaultImage?.imageUrl || '');
+    const [originalImage, setOriginalImage] = useState<string | null>(null);
     const [prompt, setPrompt] = useState<string>('');
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        // This ensures the image is only set on the client-side, avoiding SSR mismatches.
+        setOriginalImage(defaultImage?.imageUrl || '');
+    }, []);
 
     useEffect(() => {
         if (state.error) {
@@ -61,7 +66,10 @@ export default function ImageEditor() {
         if (file) {
             const reader = new FileReader();
             reader.onload = (loadEvent) => {
-                setOriginalImage(loadEvent.target?.result as string);
+                const result = loadEvent.target?.result as string;
+                setOriginalImage(result);
+                // Also update the edited image to reflect the new original
+                state.editedImageDataUri = undefined; 
             };
             reader.readAsDataURL(file);
         }
@@ -75,19 +83,23 @@ export default function ImageEditor() {
             </CardHeader>
             <CardContent>
                 <form action={formAction} className="space-y-6">
-                    <input type="hidden" name="imageDataUri" value={originalImage} />
+                    <input type="hidden" name="imageDataUri" value={originalImage || ''} />
                     <div className="grid md:grid-cols-2 gap-6 items-start">
                         <div className="space-y-4">
                             <Card>
                                 <CardContent className="p-2">
                                     <div className="aspect-video relative w-full">
-                                        <Image
-                                            src={originalImage}
-                                            alt="Original image"
-                                            fill
-                                            className="rounded-md object-cover"
-                                            data-ai-hint="abstract art"
-                                        />
+                                        {originalImage ? (
+                                            <Image
+                                                src={originalImage}
+                                                alt="Original image"
+                                                fill
+                                                className="rounded-md object-cover"
+                                                data-ai-hint="abstract art"
+                                            />
+                                        ) : (
+                                            <Skeleton className="w-full h-full" />
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>
