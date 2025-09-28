@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -7,6 +8,7 @@ import { handleUserMessage, convertTextToSpeech } from '@/app/actions';
 import {
   Clipboard,
   Copy,
+  Eye,
   SendHorizonal,
   ThumbsDown,
   ThumbsUp,
@@ -17,6 +19,13 @@ import {
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { ScrollArea } from './ui/scroll-area';
 import { Skeleton } from './ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,8 +39,7 @@ const initialMessages: Message[] = [
   {
     id: 'init',
     role: 'assistant',
-    content:
-      "Hello! I'm Zaidev AI. Ask me a coding question.",
+    content: "Hello! I'm Zaidev AI. Ask me a coding question.",
   },
 ];
 
@@ -73,23 +81,48 @@ function CodeBlock({ code }: { code: string }) {
   };
 
   return (
-    <div className="bg-gray-950 rounded-md mt-4 relative">
-       <pre className="text-sm text-white p-4 overflow-x-auto whitespace-pre-wrap">
+    <div className="bg-gray-950 rounded-md mt-4 relative group/code">
+      <pre className="text-sm text-white p-4 overflow-x-auto whitespace-pre-wrap">
         <code>{code}</code>
       </pre>
-      <Button
-        size="icon"
-        variant="ghost"
-        className="absolute top-2 right-2 h-8 w-8 text-white hover:text-white hover:bg-gray-800"
-        onClick={handleCopy}
-        disabled={isCopied}
-      >
-        {isCopied ? (
-          <Clipboard className="w-4 h-4" />
-        ) : (
-          <Copy className="w-4 h-4" />
-        )}
-      </Button>
+      <div className="absolute top-2 right-2 flex items-center gap-1">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-white hover:text-white hover:bg-gray-800"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl h-[80vh]">
+            <DialogHeader>
+              <DialogTitle>Code Preview</DialogTitle>
+            </DialogHeader>
+            <div className="h-full w-full border rounded-md">
+              <iframe
+                srcDoc={code}
+                className="w-full h-full"
+                sandbox="allow-scripts allow-modals"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-8 w-8 text-white hover:text-white hover:bg-gray-800"
+          onClick={handleCopy}
+          disabled={isCopied}
+        >
+          {isCopied ? (
+            <Clipboard className="w-4 h-4" />
+          ) : (
+            <Copy className="w-4 h-4" />
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -125,7 +158,7 @@ function AssistantMessageActions({ message }: { message: Message }) {
       setIsSpeaking(false);
       return;
     }
-    
+
     setIsSpeaking(true);
     const result = await convertTextToSpeech(message.content);
     if ('audioDataUri' in result) {
@@ -197,7 +230,6 @@ function AssistantMessageActions({ message }: { message: Message }) {
   );
 }
 
-
 export default function ChatPanel() {
   const [state, formAction, isPending] = useActionState(
     handleUserMessage,
@@ -235,7 +267,7 @@ export default function ChatPanel() {
     formAction(formData);
     formRef.current?.reset();
     textareaRef.current?.focus();
-  }
+  };
 
   return (
     <Card className="w-full max-w-3xl mx-auto h-full flex flex-col">
@@ -257,7 +289,8 @@ export default function ChatPanel() {
                 </Avatar>
               )}
               <div
-                className={cn('max-w-[85%]',
+                className={cn(
+                  'max-w-[85%]',
                   message.role === 'user' ? '' : 'group'
                 )}
               >
