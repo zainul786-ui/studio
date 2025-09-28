@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MessageCircle, Image as ImageIconLucide } from 'lucide-react';
 import { Header } from '@/components/header';
 import ChatPanel from '@/components/chat-panel';
-import ImageEditor from '@/components/image-editor';
+import ClientOnlyImageEditor from '@/components/client-only-image-editor';
 
 export default function Home() {
   return (
@@ -25,7 +25,7 @@ export default function Home() {
               <ChatPanel />
             </TabsContent>
             <TabsContent value="image-editor" className="mt-6">
-              <ImageEditor />
+              <ClientOnlyImageEditor />
             </TabsContent>
           </Tabs>
         </div>
