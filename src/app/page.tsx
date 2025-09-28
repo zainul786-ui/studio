@@ -1,13 +1,36 @@
+
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
-import ClientOnlyChatPanel from '@/components/client-only-chat-panel';
+import ChatPanel from '@/components/chat-panel';
+import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <div className="flex flex-col h-screen">
       <Header />
       <main className="flex-1 w-full overflow-hidden">
         <div className="container mx-auto h-full py-4 md:py-8">
-          <ClientOnlyChatPanel />
+          {isClient ? (
+            <ChatPanel />
+          ) : (
+            <Card className="w-full max-w-3xl mx-auto h-full flex flex-col">
+              <div className="flex-1 p-4">
+                <Skeleton className="h-full w-full" />
+              </div>
+              <div className="p-4 border-t shrink-0">
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </Card>
+          )}
         </div>
       </main>
     </div>
