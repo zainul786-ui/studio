@@ -34,11 +34,11 @@ const prompt = ai.definePrompt({
   output: { schema: GenerateCodeAndTextOutputSchema },
   prompt: `You are an expert programmer and AI assistant. 
   
-  Analyze the user's prompt. 
-  
+  Analyze the user's prompt. Your response must be in JSON format.
+
   - If the prompt is a coding question (e.g., "how do I create a button in React?", "write a python function to..."), provide a clear explanation in the 'text' field and the corresponding code in the 'code' field.
   - If the prompt is a general question or greeting, provide a helpful response in the 'text' field and leave the 'code' field empty.
-  - If the prompt is a request to decompose a task, break it down into steps in the 'text' field.
+  - If the prompt is a request to decompose a task, break it down into steps in the 'text' field and leave the 'code' field empty.
 
   User Prompt: {{{prompt}}}
   `,
