@@ -30,7 +30,12 @@ export function Header() {
         <div className="mr-4 flex">
           <Link className="mr-6 flex items-center space-x-2" href="/">
             <ZaidevLogo className="h-6 w-6 text-primary" />
-            <span className="font-bold text-lg">Zaidev AI</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg">Zaidev AI</span>
+              <span className="text-xs text-muted-foreground -mt-1">
+                by Zainul Aman
+              </span>
+            </div>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
