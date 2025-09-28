@@ -146,6 +146,13 @@ export default function ChatPanel() {
     }
   }
 
+  const handleFormAction = (formData: FormData) => {
+    formAction(formData);
+    clearImagePreview();
+    formRef.current?.reset();
+    textareaRef.current?.focus();
+  }
+
   return (
     <Card className="w-full max-w-3xl mx-auto h-full flex flex-col">
       <ScrollArea className="flex-1 p-4" viewportRef={scrollViewportRef}>
@@ -211,15 +218,7 @@ export default function ChatPanel() {
       <div className="p-4 border-t shrink-0">
         <form
           ref={formRef}
-          action={(formData) => {
-            if (imagePreview) {
-              formData.set('imageDataUri', imagePreview);
-            }
-            formAction(formData);
-            clearImagePreview();
-            formRef.current?.reset();
-            textareaRef.current?.focus();
-          }}
+          action={handleFormAction}
           className="flex flex-col gap-2"
         >
           {imagePreview && (
@@ -241,6 +240,7 @@ export default function ChatPanel() {
               </Button>
             </div>
           )}
+          <input type="hidden" name="imageDataUri" value={imagePreview || ''} />
           <div className="flex items-center gap-2">
             <Button
               type="button"
